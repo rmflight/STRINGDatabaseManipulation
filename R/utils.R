@@ -29,6 +29,9 @@ strip_species <- function(string_id){
 #' set.seed(1234)
 #' link_data <- STRING10_links
 #' link_data <- link_data[sample(nrow(link_data), 10000),]
+#' link_data <- link_data[, c(1,2)]
+#' names(link_data) <- c("from", "to")
+#' link_data$weight <- 1
 #' start_nodes <- sample(unique(c(link_data[,1], link_data[,2])), 10)
 #' end_nodes <- NULL
 #' n_hop <- 3
@@ -44,7 +47,7 @@ find_edges <- function(link_data, start_nodes, n_hop = 1, end_nodes = NULL){
   }
 
   use_edges <- c(split(link_data[,1], link_data[,2]), split(link_data[,2], link_data[,1]))
-  link_graph <- new("graphNEL", nodes = all_nodes, edgeL = use_edges, edgemode = "undirected")
+  link_graph <- graphBAM(link_data, edgemode = "undirected", ignore_dup_edges = TRUE)
 
   query_nodes <- start_nodes
 
@@ -114,6 +117,7 @@ find_edges <- function(link_data, start_nodes, n_hop = 1, end_nodes = NULL){
 
   keep_nodes <- unique(as.vector(edge_traverse[keep_traverse, ]))
   keep_nodes <- keep_nodes[!(nchar(keep_nodes) == 0)]
+  remove_nodes <- all_nodes[!(all_nodes %in% keep_nodes)]
 
-  return(list(graph = subGraph(keep_nodes, link_graph), nodes = keep_nodes))
+  return(list(graph = removeNode(remove_nodes, link_graph), nodes = keep_nodes))
 }
