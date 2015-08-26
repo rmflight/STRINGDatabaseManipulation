@@ -46,7 +46,6 @@ find_edges <- function(link_data, start_nodes, n_hop = 1, end_nodes = NULL){
     end_nodes <- all_nodes
   }
 
-  use_edges <- c(split(link_data[,1], link_data[,2]), split(link_data[,2], link_data[,1]))
   link_graph <- graphBAM(link_data, edgemode = "undirected", ignore_dup_edges = TRUE)
 
   query_nodes <- start_nodes
