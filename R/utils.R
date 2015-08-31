@@ -121,9 +121,10 @@ find_edges <- function(link_data, start_nodes, n_hop = 1, end_nodes = NULL, drop
       edge_traverse[tmp_same, i_hop + 1] <- ""
     }
 
-    # check for locations where last node is same as first node, and use this to remove things to search
-    # for. In next round, will set to "". We do this because we want to potentially keep these traversals
-    same_loc <- edge_traverse[, 1] == edge_traverse[, i_hop + 1]
+    # check for locations where last node is same as a previous node, and use this to remove things to search
+    # for. In next round, will set to "". We do this because we want to potentially keep these traversals, but not
+    # include them in any more rounds of searching.
+    same_loc <- apply(edge_traverse, 1, function(x){sum(x[i_hop + 1] %in% x[1:i_hop]) > 0})
     query_nodes <- unique(edge_traverse[!same_loc, i_hop + 1])
     query_nodes <- query_nodes[!(nchar(query_nodes) == 0)]
 
