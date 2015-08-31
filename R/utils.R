@@ -12,12 +12,31 @@ strip_species <- function(string_id){
   substring(string_id, 6)
 }
 
+
+#' convert to graphBAM
+#'
+#' convert a STRING data.frame to a graphBAM graph for use in other applications
+#'
+#' @param string_data a data.frame of STRING links
+#' @export
+#' @return graphBAM graph
+#' @import graph
+string_2_graphBAM <- function(string_data){
+  stopifnot(is.data.frame(string_data))
+  string_edges <- string_data[, c(1,2)]
+  names(string_edges) <- c("from", "to")
+  string_edges$weight <- 1
+
+  string_graph <- graphBAM(string_edges, edgemode = "undirected", ignore_dup_edges = TRUE)
+  string_graph
+}
+
 #' find links between nodes
 #'
 #' given a data frame of edges, find nodes within so many edges of initial nodes
 #' with option that final set of edges go to known nodes
 #'
-#' @param link_data a data.frame of links
+#' @param in_graph a graphBAM graph
 #' @param start_nodes which nodes to start from
 #' @param n_hop how many hops to go out (default is 1)
 #' @param end_nodes optional, only keep edges that end at these nodes
@@ -37,19 +56,21 @@ strip_species <- function(string_id){
 #' @return list
 #' @examples
 #' library(STRINGDatabaseManipulation)
+#' library(graph)
 #' set.seed(1234)
 #' link_data <- STRING10_links
 #' link_data <- link_data[sample(nrow(link_data), 10000),]
-#' link_data <- link_data[, c(1,2)]
-#' names(link_data) <- c("from", "to")
-#' link_data$weight <- 1
-#' start_nodes <- sample(unique(c(link_data[,1], link_data[,2])), 10)
+#' link_graph <- string_2_graphBAM(link_data)
+#' start_nodes <- sample(nodes(link_graph), 10)
 #' end_nodes <- NULL
 #' n_hop <- 3
-#' find_edges(link_data, start_nodes, n_hop)
+#' find_edges(link_graph, start_nodes, n_hop)
 #'
-#' find_edges(link_data, start_nodes, n_hop, end_nodes, drop_same_after_2)
-find_edges <- function(link_data, start_nodes, n_hop = 1, end_nodes = NULL, drop_same_after_2 = TRUE){
+#' find_edges(link_graph, start_nodes, n_hop, end_nodes, drop_same_after_2)
+find_edges <- function(in_graph, start_nodes, n_hop = 1, end_nodes = NULL, drop_same_after_2 = TRUE){
+
+  stopifnot(class(in_graph) != "graphBAM")
+
   all_nodes <- unique(c(link_data[,1], link_data[,2]))
   if ("" %in% all_nodes) {
     stop('There is a node with a name of "", the empty string, which is not allowed.', call. = TRUE)
@@ -59,7 +80,7 @@ find_edges <- function(link_data, start_nodes, n_hop = 1, end_nodes = NULL, drop
     end_nodes <- all_nodes
   }
 
-  link_graph <- graphBAM(link_data, edgemode = "undirected", ignore_dup_edges = TRUE)
+
 
   query_nodes <- start_nodes
 
@@ -149,3 +170,11 @@ find_edges <- function(link_data, start_nodes, n_hop = 1, end_nodes = NULL, drop
 
   return(list(graph = removeNode(remove_nodes, link_graph), nodes = keep_nodes))
 }
+
+#' alternative find_edges from both
+#'
+#' a less general approach is to come from both the start and end nodes, go
+#' one hop, and find the intersection of all pairwise comparisons. This method is
+#' useful as it provides a simple check on the original find_edges method
+#'
+#' @param
