@@ -69,7 +69,7 @@ string_2_graphBAM <- function(string_data){
 #' find_edges(link_graph, start_nodes, n_hop, end_nodes, drop_same_after_2)
 find_edges <- function(in_graph, start_nodes, n_hop = 1, end_nodes = NULL, drop_same_after_2 = TRUE){
 
-  stopifnot(class(in_graph) != "graphBAM")
+  stopifnot(class(in_graph) == "graphBAM")
 
   all_nodes <- unique(c(link_data[,1], link_data[,2]))
   if ("" %in% all_nodes) {
