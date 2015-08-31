@@ -138,7 +138,7 @@ find_edges <- function(link_data, start_nodes, n_hop = 1, end_nodes = NULL, drop
   # by going backwards from the last hop to the first, saving those edge paths
   # where we encounter the target nodes
   keep_traverse <- rep(FALSE, nrow(edge_traverse))
-  for (i_hop in seq(ncol(edge_traverse), 2, -1)){
+  for (i_hop in seq(ncol(edge_traverse), 2, -1)) {
     keep_traverse <- keep_traverse | (edge_traverse[, i_hop] %in% end_nodes)
     edge_traverse[!keep_traverse, i_hop] <- ""
   }
