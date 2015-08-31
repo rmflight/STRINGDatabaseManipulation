@@ -6,6 +6,7 @@
 #' @param string_id character vector of STRING IDs (XXXX.ENSPXXX)
 #'
 #' @return character vector
+#' @export
 #'
 strip_species <- function(string_id){
   substring(string_id, 6)
@@ -20,6 +21,16 @@ strip_species <- function(string_id){
 #' @param start_nodes which nodes to start from
 #' @param n_hop how many hops to go out (default is 1)
 #' @param end_nodes optional, only keep edges that end at these nodes
+#' @param drop_same_after_2 should edges that only go to a single other node
+#'   be dropped? Default is TRUE. See DETAILS for more information.
+#'
+#' @details One frequently encountered case will be a set of nodes that do:
+#'   N1 --> N2 --> N1 (because the network is assumed to be undirected), where
+#'   after a single hop from N1 we reach N2, and then a second hop returns to N1.
+#'   Even in the case where the end_nodes are the same as the start_nodes, this
+#'   is likely \emph{not} useful information. So \code{drop_same_after_1 = TRUE}
+#'   will set the results so that these edge paths are not returned and kept
+#'   in the final graph.
 #'
 #' @import graph
 #' @export
@@ -36,7 +47,9 @@ strip_species <- function(string_id){
 #' end_nodes <- NULL
 #' n_hop <- 3
 #' find_edges(link_data, start_nodes, n_hop)
-find_edges <- function(link_data, start_nodes, n_hop = 1, end_nodes = NULL){
+#'
+#' find_edges(link_data, start_nodes, n_hop, end_nodes, drop_same_after_2)
+find_edges <- function(link_data, start_nodes, n_hop = 1, end_nodes = NULL, drop_same_after_2 = TRUE){
   all_nodes <- unique(c(link_data[,1], link_data[,2]))
   if ("" %in% all_nodes) {
     stop('There is a node with a name of "", the empty string, which is not allowed.', call. = TRUE)
@@ -99,8 +112,17 @@ find_edges <- function(link_data, start_nodes, n_hop = 1, end_nodes = NULL){
       edge_traverse <- tmp_traverse
     }
 
+    # as a way to stop early and not consider those edges that merely return to
+    # the start after ONLY two hops (N1 --> N2 --> N1), set the second N1 to ""
+    # so that this edge-path will not be considered at all in future hops, nor
+    # will it be kept in the backtracking part
+    if (drop_same_after_2 && (i_hop == 2)) {
+      tmp_same <- edge_traverse[, 1] == edge_traverse[, i_hop + 1]
+      edge_traverse[tmp_same, i_hop + 1] <- ""
+    }
+
     # check for locations where last node is same as first node, and use this to remove things to search
-    # for. In next round, will set to NA. We do this because we want to potentially keep these traversals
+    # for. In next round, will set to "". We do this because we want to potentially keep these traversals
     same_loc <- edge_traverse[, 1] == edge_traverse[, i_hop + 1]
     query_nodes <- unique(edge_traverse[!same_loc, i_hop + 1])
     query_nodes <- query_nodes[!(nchar(query_nodes) == 0)]
