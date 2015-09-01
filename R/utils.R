@@ -27,7 +27,7 @@ string_2_graphBAM <- function(string_data){
   names(string_edges) <- c("from", "to")
   string_edges$weight <- 1
 
-  string_graph <- graphBAM(string_edges, edgemode = "undirected", ignore_dup_edges = TRUE)
+  string_graph <- graph::graphBAM(string_edges, edgemode = "undirected", ignore_dup_edges = TRUE)
   string_graph
 }
 
@@ -70,24 +70,17 @@ string_2_graphBAM <- function(string_data){
 find_edges <- function(in_graph, start_nodes, n_hop = 1, end_nodes = NULL, drop_same_after_2 = TRUE){
 
   stopifnot(class(in_graph) == "graphBAM")
-
-  all_nodes <- unique(c(link_data[,1], link_data[,2]))
-  if ("" %in% all_nodes) {
-    stop('There is a node with a name of "", the empty string, which is not allowed.', call. = TRUE)
-  }
-
+  all_nodes <- nodes(in_graph)
   if (is.null(end_nodes)) {
     end_nodes <- all_nodes
   }
-
-
 
   query_nodes <- start_nodes
 
   edge_traverse <- matrix("", nrow = length(all_nodes), ncol = n_hop + 1)
   for (i_hop in seq_len(n_hop)){
 
-    hop_edges <- edges(link_graph, query_nodes)
+    hop_edges <- edges(in_graph, query_nodes)
     if (i_hop == 1){
 
       to_edges <- unlist(hop_edges, use.names = FALSE)
@@ -166,9 +159,10 @@ find_edges <- function(in_graph, start_nodes, n_hop = 1, end_nodes = NULL, drop_
 
   keep_nodes <- unique(as.vector(edge_traverse[keep_traverse, ]))
   keep_nodes <- keep_nodes[!(nchar(keep_nodes) == 0)]
+  keep_nodes <- unique(keep_nodes)
   remove_nodes <- all_nodes[!(all_nodes %in% keep_nodes)]
 
-  return(list(graph = removeNode(remove_nodes, link_graph), nodes = keep_nodes))
+  return(list(graph = removeNode(remove_nodes, in_graph), nodes = keep_nodes))
 }
 
 #' alternative find_edges from both
@@ -209,7 +203,7 @@ find_intersecting_nodes <- function(in_graph, start_nodes, end_nodes){
     out_nodes <- intersect_nodes <- character(0)
 
     if (n1 != n2) {
-      intersect_nodes <- base::intersect(adj_start[[n1]], adj_end[[n2]])
+      intersect_nodes <- base::intersect(c(n1, adj_start[[n1]]), c(n2, adj_end[[n2]]))
     }
 
     if (length(intersect_nodes) != 0) {
