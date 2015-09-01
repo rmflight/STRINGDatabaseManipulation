@@ -175,6 +175,55 @@ find_edges <- function(in_graph, start_nodes, n_hop = 1, end_nodes = NULL, drop_
 #'
 #' a less general approach is to come from both the start and end nodes, go
 #' one hop, and find the intersection of all pairwise comparisons. This method is
-#' useful as it provides a simple check on the original find_edges method
+#' useful as it provides a simple check on the original find_edges method for 2
+#' hops.
 #'
-#' @param
+#' @param in_graph a graphBAM
+#' @param start_nodes the start nodes to use
+#' @param end_nodes the end nodes to reach
+#'
+#' @return with new graph and all nodes in graph
+#' @export
+#'
+#' @examples
+#' library(STRINGDatabaseManipulation)
+#' library(graph)
+#' set.seed(1234)
+#' link_data <- STRING10_links
+#' link_data <- link_data[sample(nrow(link_data), 10000),]
+#' in_graph <- string_2_graphBAM(link_data)
+#' start_nodes <- sample(nodes(link_graph), 100)
+#' end_nodes <- start_nodes
+find_intersecting_nodes <- function(in_graph, start_nodes, end_nodes){
+  stopifnot(class(in_graph) == "graphBAM")
+
+  adj_start <- adj(in_graph, start_nodes)
+  adj_end <- adj(in_graph, end_nodes)
+
+  all_comparisons <- expand.grid(start_nodes, end_nodes, stringsAsFactors = FALSE)
+
+  keep_nodes <- lapply(seq(1, nrow(all_comparisons)), function(in_row){
+    n1 <- all_comparisons[in_row, 1]
+    n2 <- all_comparisons[in_row, 2]
+
+    out_nodes <- intersect_nodes <- character(0)
+
+    if (n1 != n2) {
+      intersect_nodes <- base::intersect(adj_start[[n1]], adj_end[[n2]])
+    }
+
+    if (length(intersect_nodes) != 0) {
+      out_nodes <- c(n1, n2, intersect_nodes)
+    }
+
+    return(out_nodes)
+  })
+
+  keep_nodes <- unique(unlist(keep_nodes))
+
+  all_nodes <- nodes(in_graph)
+  remove_nodes <- all_nodes[!(all_nodes %in% keep_nodes)]
+
+  return(list(graph = removeNode(remove_nodes, in_graph), nodes = keep_nodes))
+
+}
