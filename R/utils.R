@@ -192,8 +192,8 @@ find_edges <- function(in_graph, start_nodes, n_hop = 1, end_nodes = NULL, drop_
 #' link_data <- STRING10_links
 #' link_data <- link_data[sample(nrow(link_data), 10000),]
 #' in_graph <- string_2_graphBAM(link_data)
-#' start_nodes <- sample(nodes(link_graph), 100)
-#' end_nodes <- start_nodes
+#' start_nodes <- end_nodes <- sample(nodes(link_graph), 100)
+#' out_graph <- find_intersecting_nodes(in_graph, start_nodes, end_nodes)
 find_intersecting_nodes <- function(in_graph, start_nodes, end_nodes){
   stopifnot(class(in_graph) == "graphBAM")
 
