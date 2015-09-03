@@ -221,3 +221,17 @@ find_intersecting_nodes <- function(in_graph, start_nodes, end_nodes){
   return(list(graph = removeNode(remove_nodes, in_graph), nodes = keep_nodes))
 
 }
+
+#' find shortest path
+#'
+#' finds the nodes that make a shortest path between two given sets of nodes
+#' and a distance paramter. This is done by breaking any edges between the sets of
+#' nodes provided, and then asking for the shortest path from a node in one set to
+#' the nodes in the other set, trimming to those that are within a specific number
+#' of hops.
+#'
+#' This function should use an igraph based graph, and then use some of the functionality
+#' in all_shortest_paths
+find_edges_shortest_path <- function(){
+
+}
