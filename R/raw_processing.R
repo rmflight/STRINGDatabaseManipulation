@@ -6,8 +6,6 @@
 #' @export
 #' @return data.frame
 #'
-#' @example
-#'
 process_string_data <- function(string_file){
   stopifnot(file.exists(string_file))
 
@@ -23,8 +21,6 @@ process_string_data <- function(string_file){
 #' @param string_file the id file
 #' @export
 #' @return data.frame
-#'
-#' @example
 #'
 process_string_id <- function(string_file){
   stopifnot(file.exists(string_file))
