@@ -4,10 +4,12 @@
 \alias{string_2_graphBAM}
 \title{convert to graphBAM}
 \usage{
-string_2_graphBAM(string_data)
+string_2_graphBAM(string_data, use_weights = NULL)
 }
 \arguments{
 \item{string_data}{a data.frame of STRING links}
+
+\item{use_weights}{a column of the data.frame to use for weights. If NULL, value of 1 is used.}
 }
 \value{
 graphBAM graph

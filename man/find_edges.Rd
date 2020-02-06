@@ -47,5 +47,5 @@ end_nodes <- NULL
 n_hop <- 3
 find_edges(link_graph, start_nodes, n_hop)
 
-find_edges(link_graph, start_nodes, n_hop, end_nodes, drop_same_after_2)
+find_edges(link_graph, start_nodes, n_hop, end_nodes, drop_same_after_2 = FALSE)
 }
