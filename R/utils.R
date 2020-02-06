@@ -18,14 +18,22 @@ strip_species <- function(string_id){
 #' convert a STRING data.frame to a graphBAM graph for use in other applications
 #'
 #' @param string_data a data.frame of STRING links
+#' @param use_weights a column of the data.frame to use for weights. If NULL, value of 1 is used.
 #' @export
 #' @return graphBAM graph
 #' @import graph
-string_2_graphBAM <- function(string_data){
+string_2_graphBAM <- function(string_data, use_weights = NULL){
   stopifnot(is.data.frame(string_data))
   string_edges <- string_data[, c(1,2)]
   names(string_edges) <- c("from", "to")
-  string_edges$weight <- 1
+  if (is.null(use_weights)) {
+    string_edges$weight <- 1
+  } else {
+    if (use_weights %in% names(string_data)) {
+      string_edges$weight <- string_data[[use_weights]]
+    }
+  }
+
 
   string_graph <- graph::graphBAM(string_edges, edgemode = "undirected", ignore_dup_edges = TRUE)
   string_graph
@@ -66,7 +74,7 @@ string_2_graphBAM <- function(string_data){
 #' n_hop <- 3
 #' find_edges(link_graph, start_nodes, n_hop)
 #'
-#' find_edges(link_graph, start_nodes, n_hop, end_nodes, drop_same_after_2)
+#' find_edges(link_graph, start_nodes, n_hop, end_nodes, drop_same_after_2 = FALSE)
 find_edges <- function(in_graph, start_nodes, n_hop = 1, end_nodes = NULL, drop_same_after_2 = TRUE){
 
   stopifnot(class(in_graph) == "graphBAM")
