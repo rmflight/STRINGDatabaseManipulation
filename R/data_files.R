@@ -1,9 +1,10 @@
 #' STRING V10 detailed links for human
 #'
-#' Dataset containing the detailed links from v10 of the STRING database for
-#' human.
+#' Dataset containing the detailed links from v11 of the STRING database for
+#' human. combined_score >= 400, and 10000 randomly chosen links. THIS IS NOT
+#' THE COMPLETE DATASET!
 #'
-#' @format A data.frame with 8548002 rows and 10 variables:
+#' @format A data.frame with 10000 rows and 10 variables:
 #' \describe{
 #'   \item{protein1}{first node in edge}
 #'   \item{protein2}{second node in edge}
@@ -15,9 +16,9 @@
 #'   \item{database}{score for database evidence}
 #'   \item{textmining}{score from textmining}
 #'   \item{combined_score}{total combined score from all evidences}}
-#' @source \url{http://string-db.org/newstring_download/protein.links.detailed.v10/9606.protein.links.detailed.v10.txt.gz}
+#' @source \url{https://stringdb-static.org/download/protein.links.detailed.v11.0/9606.protein.links.detailed.v11.0.txt.gz}
 #' Processed by RMF
-"STRING10_links"
+"STRING11_9606_links"
 
 #' STRING V10 aliases for human
 #'
@@ -29,6 +30,6 @@
 #'   \item{other}{the other alias}
 #'   \item{type}{the source of the alias (space separated for multiple sources)}}
 #'
-#' @source \url{http://string-db.org/newstring_download/protein.aliases.v10/9606.protein.aliases.v10.txt.gz}
+#' @source \url{https://stringdb-static.org/download/protein.aliases.v11.0/9606.protein.aliases.v11.0.txt.gz}
 #' Processed by RMF
-"STRING10_aliases"
+"STRING11_9606_aliases"
