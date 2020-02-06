@@ -1,0 +1,110 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+# STRINGDatabaseManipulation
+
+The goal of STRINGDatabaseManipulation is to provide functions for working with STRING protein-protein interaction networks.
+
+## Installation
+
+Only the development version of STRINGDatabaseManipulation is available. 
+You will also need the `graph` package from Bioconductor.
+
+``` r
+install.packages("BiocManager")
+BiocManager::install("graph")
+remotes::install_github("rmflight/STRINGDatabaseManipulation")
+```
+
+## Issues
+
+If you have a question about how to use the package, a request for something new to be implemented, or have a bug, please [file an issue](https://github.com/rmflight/STRINGDatabaseManipulation/issues).
+
+## Getting Data
+
+This package works with preprocessed data from STRING itself. 
+
+You can preprocess files from STRING by downloading detail and alias files.
+
+For example, for human you can download the detail file by:
+
+```
+# get the PPI network itself
+wget https://stringdb-static.org/download/protein.links.detailed.v11.0/9606.protein.links.detailed.v11.0.txt.gz
+# get aliases
+wget https://stringdb-static.org/download/protein.aliases.v11.0/9606.protein.aliases.v11.0.txt.gz
+``` 
+
+Note: these links become available after filtering by first choosing an organism.
+
+And then process them so they are easier to use:
+
+```{r process_data, eval = FALSE}
+library(STRINGDatabaseManipulation)
+# assuming data is in the file, you would do:
+ppi_data = process_string_data("9606.protein.links.detailed.v11.0.txt.gz")
+
+# save it for later
+saveRDS(ppi_data, file = "tmp_ppi_data.rda")
+
+# process aliases
+protein_aliases = process_string_id("9606.protein.aliases.v11.0.txt.gz")
+
+# save for later
+saveRDS(protein_aliases, file = "tmp_aliases.rda")
+```
+
+I have smaller versions of the data files saved for examples.
+
+```{r example_data}
+library(STRINGDatabaseManipulation)
+data("STRING11_9606_links")
+head(STRING11_9606_links)
+
+data("STRING11_9606_aliases")
+head(STRING11_9606_aliases)
+```
+
+## Using Data
+
+Now lets actually do something with the STRING data. Lets find all nodes within so many hops (3) of a set of starting nodes.
+
+We will use the example data from the package.
+
+```{r run_example_hops, warning=FALSE, message=FALSE}
+library(graph)
+ppi_data = STRING11_9606_links
+
+# we also trim it to a random 10000 to make this example tractable
+ppi_graph = string_2_graphBAM(ppi_data)
+start_nodes = sample(nodes(ppi_graph), 10)
+n_hop = 3
+
+after_3 = find_edges(ppi_graph, start_nodes, n_hop)
+after_3$graph
+
+after_32 = find_edges(ppi_graph, start_nodes, n_hop, drop_same_after_2 = FALSE)
+after_32$graph
+```
+
+In this case nothing changed, but depending on the inputs, it might.
+
+## Visualizing
+
+If you want to visualize the results, you should be able to convert the `graphBAM` object to something that `ggraph` can plot. 
+
+## Code of Conduct
+
+Please note that the 'STRINGDatabaseManipulation' project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project, you agree to abide by its terms.
+
